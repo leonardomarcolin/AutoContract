@@ -10,7 +10,7 @@ import streamlit as st
 import win32com.client as win32
 from docx import Document
 
-BASE = Path(__file__).parent
+BASE = Path(__file__).resolve().parent
 pasta_contratos = BASE / "contratos_gerados"
 arquivo_zip = BASE / "contratosPDF.zip"
 pasta_contratos.mkdir(exist_ok=True)
@@ -18,19 +18,33 @@ pasta_contratos.mkdir(exist_ok=True)
 def word_para_pdf(word_caminho, pdf_caminho):
     pythoncom.CoInitialize()
     word_app = None
+    doc = None
     try:
         word_app = win32.DispatchEx('Word.Application')
         word_app.Visible = False
-        doc = word_app.Documents.Open(str(word_caminho))
-        doc.SaveAs(str(pdf_caminho), FileFormat=17)  # 17 = PDF
-        doc.Close(False)
+        word_app.DisplayAlerts = 0
+        doc = word_app.Documents.Open(
+            str(word_caminho),
+            ConfirmConversions=False,
+            ReadOnly=True,
+            AddToRecentFiles=False,
+            )
+        doc.ExportAsFixedFormat(str(pdf_caminho), 17) # 17 = PDF
         return True
     except Exception as e:
         st.error(f"Erro na conversão: {e}")
         return False
     finally:
+        if doc is not None:
+            try:
+                doc.Close(False)
+            except Exception:
+                pass
         if word_app is not None:
-            word_app.Quit()
+            try:
+                word_app.Quit()
+            except Exception:
+                pass
         pythoncom.CoUninitialize()
 
 def trocar_primeiro_paragrafo(doc, texto):
@@ -103,10 +117,10 @@ with col1:
 
         with tempfile.TemporaryDirectory() as tmp:
             for nome in nomes_lista:
-                nome = str(nome).upper()
-                nome_arquivo = re.sub(r'[\\/:*?"<>|]','-', nome)
-                caminho_word = Path(tmp) / f'Contrato-{nome_arquivo}.docx'
-                caminho_pdf = pasta_contratos / f'Contrato-{nome_arquivo}.pdf'
+                nome = str(nome).strip().upper()
+                nome_arquivo = re.sub(r'[\\/:*?"<>|]','-', nome).strip(' .')
+                caminho_word = (Path(tmp) / f'Contrato-{nome_arquivo}.docx').resolve()
+                caminho_pdf = (pasta_contratos / f'Contrato-{nome_arquivo}.pdf').resolve()
 
                 word_base.seek(0)
                 word = Document(word_base)
@@ -131,7 +145,7 @@ with col3:
     if st.button('Limpar arquivo ZIP'):
         if arquivo_zip.exists():
             arquivo_zip.unlink()
-            st.sucess('Arquivo ZIP excluído!')
+            st.success('Arquivo ZIP excluído!')
         else:
             st.error('Arquivo ZIP já foi excluído ou não existe.')
         sleep(2)
