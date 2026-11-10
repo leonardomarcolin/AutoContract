@@ -2,6 +2,8 @@
 
 Aplicativo em Python com interface web (Streamlit) que gera contratos em PDF em lote. A partir de um modelo em Word (`.docx`) e de uma lista de nomes em CSV, ele cria um contrato para cada pessoa e entrega tudo em um único arquivo ZIP.
 
+Assista à demonstração: https://www.youtube.com/watch?v=rZcL-z_p3U4
+
 ## Como funciona
 
 1. Você anexa o modelo de contrato (`.docx`).
