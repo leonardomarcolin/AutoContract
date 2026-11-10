@@ -8,6 +8,7 @@ Aplicativo em Python com interface web (Streamlit) que gera contratos em PDF em 
 2. Você anexa o banco de dados (`.csv`) com uma coluna `nome`.
 3. Ao clicar em **Gerar contratos**, o app substitui o primeiro parágrafo do modelo pelo nome de cada pessoa (em maiúsculas), converte o documento para PDF e salva em `contratos_gerados/`.
 4. Todos os PDFs são compactados em `contratosPDF.zip`, disponível para download na própria tela.
+* O tempo de geração depende da quantidade de nomes no banco de dados e das configurações de sua máquina
 
 ## Requisitos
 
